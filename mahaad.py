@@ -4,10 +4,10 @@ from efficientnet_pytorch import EfficientNet
 import torch.nn.functional as F
 import data
 import numpy as np
-from sklearn.metrics import roc_auc_score
+import eval 
 
-efnet = 4
-bs = 32
+efnet = 0
+bs = 64
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # Adapted from https://github.com/byungjae89/MahalanobisAD-pytorch
@@ -45,13 +45,11 @@ def get_latent_vectors(data, model):
         features = model.get_features(x)
         
         for i in range(len(features)):
-
             if cnt == 0:
                 latent_vectors[str(i)] = []    
 
             latent_vectors[str(i)].append(features[i])
 
-    # Concatenate all vectors
     for i in range(len(features)):
         latent_vectors[str(i)] = torch.cat(latent_vectors[str(i)]).cpu().numpy()
 
@@ -65,6 +63,7 @@ def get_maha_dists(train, points):
         mean = np.mean(train[str(layer)], axis=0)
 
         LW = LedoitWolf().fit(train[str(layer)])
+
         # Typically np linalg inv gives slightly better results than LW.precision_
         # covI = LW.precision_
         covI = np.linalg.inv(LW.covariance_)
@@ -77,18 +76,6 @@ def get_maha_dists(train, points):
         scores += dists
 
     return scores   
-
-def compute_auc(scoresIn, scoresOut):
-    groundTruthIn = np.array([1 for i in range(len(scoresIn))])
-    groundTruthOut = np.array([-1 for i in range(len(scoresOut))])
-
-    groundTruth = np.append(groundTruthIn, groundTruthOut)
-
-    scores = np.append(scoresIn, scoresOut)
-
-    auroc = roc_auc_score(groundTruth, -1 * scores)
-    
-    return auroc
 
 def main():
     train, testIn, testOut = data.get_data(efnet)
@@ -103,9 +90,9 @@ def main():
     inScores = get_maha_dists(trainFeatures, inFeatures)
     outScores = get_maha_dists(trainFeatures, outFeatures)
 
-    auc = compute_auc(inScores, outScores)
+    auc = eval.compute_auc(inScores, outScores)
 
-    print("{:.2f}".format(auc*100))
+    print("AUC: {:.2f}".format(auc*100))
 
 if __name__ == "__main__":        
     main()        
