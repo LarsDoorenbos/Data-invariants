@@ -1,5 +1,10 @@
 # Data-invariants
 
+Run uniclass (10 exps), unisuper (20 exps) or shift-lowres (2 exps) with e.g.
+```
+python3 mahaad.py --numExps 10 --task uniclass --efnet 4 --bs 64
+```
+
 ### Code for other methods
 MKD: https://github.com/rohban-lab/Knowledge_Distillation_AD  <br>
 MSCL: https://github.com/talreiss/Mean-Shifted-Anomaly-Detection <br>
