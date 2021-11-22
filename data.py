@@ -84,3 +84,23 @@ def get_cifar100(efnet, in_class = 0):
     testSetOut, _ = torch.utils.data.random_split(testSetOut, [500, len(testSetOut)-500], generator=torch.Generator().manual_seed(1))
 
     return trainSet, testSetIn, testSetOut    
+
+def get_lowres_shift_data(efnet, in_class = 0):
+    transform = transforms.Compose([
+        transforms.Resize(EfNetCrops[efnet]),
+        transforms.CenterCrop(EfNetCrops[efnet]),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+
+    trainSet = torchvision.datasets.CIFAR10(root='../data', train=True, download=True, transform=transform)
+
+    testSetIn = torchvision.datasets.CIFAR10(root='../data', train=False, download=True, transform=transform)
+
+    if in_class == 0:
+        testSetOut = torchvision.datasets.CIFAR100(root='../data', train=False, download=True, transform=transform)
+    else:
+        testSetOut = torchvision.datasets.SVHN(root='./data', split='test', download=True, transform=transform)
+        testSetOut, _ = torch.utils.data.random_split(testSetOut, [10000, len(testSetOut)-10000], generator=torch.Generator().manual_seed(1))
+
+    return trainSet, testSetIn, testSetOut

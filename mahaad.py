@@ -5,10 +5,8 @@ import torch.nn.functional as F
 import data
 import numpy as np
 import eval 
+import argparse
 
-numExps = 20
-efnet = 4
-bs = 64
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # Adapted from https://github.com/byungjae89/MahalanobisAD-pytorch
@@ -35,7 +33,7 @@ class EfficientNet_features(EfficientNet):
         return features
 
 @torch.no_grad()
-def get_latent_vectors(data, model):
+def get_latent_vectors(data, model, bs):
     loader = torch.utils.data.DataLoader(data, batch_size=bs, shuffle=False, num_workers=8)
     model.eval()
     
@@ -65,9 +63,9 @@ def get_maha_dists(train, points):
 
         LW = LedoitWolf().fit(train[str(layer)])
 
-        # Typically np linalg inv gives slightly better results than LW.precision_
-        # covI = LW.precision_
-        covI = np.linalg.inv(LW.covariance_)
+        # Typically np linalg inv gives slightly better results than LW.precision_, so paper results could probably be improved slightly further
+        covI = LW.precision_
+        # covI = np.linalg.inv(LW.covariance_)
 
         points[str(layer)] = (points[str(layer)] - mean)[:, None]
         dists = covI @ points[str(layer)].transpose(0, 2, 1)
@@ -78,16 +76,22 @@ def get_maha_dists(train, points):
 
     return scores   
 
-def main(in_class):
-    train, testIn, testOut = data.get_cifar100(efnet, in_class)
+def main(in_class, task, efnet, bs):
+    if task == 'uniclass':
+        train, testIn, testOut = data.get_cifar10(efnet, in_class)
+    elif task == 'unisuper':
+        train, testIn, testOut = data.get_cifar100(efnet, in_class)
+    elif task == 'shift-lowres':
+        train, testIn, testOut = data.get_lowres_shift_data(efnet, in_class)
+
     print(len(train), len(testIn), len(testOut))
 
     model = EfficientNet_features.from_pretrained('efficientnet-b' + str(efnet))
     model.to(device)
 
-    trainFeatures = get_latent_vectors(train, model)
-    inFeatures = get_latent_vectors(testIn, model)
-    outFeatures = get_latent_vectors(testOut, model)
+    trainFeatures = get_latent_vectors(train, model, bs)
+    inFeatures = get_latent_vectors(testIn, model, bs)
+    outFeatures = get_latent_vectors(testOut, model, bs)
     
     inScores = get_maha_dists(trainFeatures, inFeatures)
     outScores = get_maha_dists(trainFeatures, outFeatures)
@@ -99,8 +103,15 @@ def main(in_class):
     return auc
 
 if __name__ == "__main__":
-    auc = 0
-    for i in range(numExps):
-        auc += main(i)        
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--numExps', type=int, default=1)
+    parser.add_argument('--efnet', type=int, default=0)
+    parser.add_argument('--bs', type=int, default=64)
+    parser.add_argument("--task", type=str, default="uniclass")
+    args = parser.parse_args()
 
-    print(auc / numExps)
+    auc = 0
+    for i in range(args.numExps):
+        auc += main(i, args.task, args.efnet, args.bs)        
+
+    print('Average AUC:', auc / args.numExps)
