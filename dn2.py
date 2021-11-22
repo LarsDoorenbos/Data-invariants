@@ -29,7 +29,7 @@ def get_knn_dists(trainFeatures, features):
     return dists
 
 def main():
-    train, testIn, testOut = data.get_data(0)
+    train, testIn, testOut = data.get_cifar10(0)
 
     model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet152', pretrained=True)
     model.to(device)

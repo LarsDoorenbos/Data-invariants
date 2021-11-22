@@ -6,7 +6,8 @@ import data
 import numpy as np
 import eval 
 
-efnet = 0
+numExps = 20
+efnet = 4
 bs = 64
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -77,8 +78,9 @@ def get_maha_dists(train, points):
 
     return scores   
 
-def main():
-    train, testIn, testOut = data.get_data(efnet)
+def main(in_class):
+    train, testIn, testOut = data.get_cifar100(efnet, in_class)
+    print(len(train), len(testIn), len(testOut))
 
     model = EfficientNet_features.from_pretrained('efficientnet-b' + str(efnet))
     model.to(device)
@@ -94,5 +96,11 @@ def main():
 
     print("AUC: {:.2f}".format(auc*100))
 
-if __name__ == "__main__":        
-    main()        
+    return auc
+
+if __name__ == "__main__":
+    auc = 0
+    for i in range(numExps):
+        auc += main(i)        
+
+    print(auc / numExps)

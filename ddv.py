@@ -85,7 +85,7 @@ def eval_DDV(testIn, testOut, model, frozenVectors):
     print("AUC: {:.2f}".format(auc*100))
 
 def main():
-    train, testIn, testOut = data.get_data(0)
+    train, testIn, testOut = data.get_cifar10(0)
 
     model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet50', pretrained=True)
     model.to(device)
