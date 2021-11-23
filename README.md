@@ -21,7 +21,7 @@ DRD: https://www.kaggle.com/c/diabetic-retinopathy-detection <br>
 DomainNet: http://ai.bu.edu/M3SDA/ <br>
 
 ### Code for other methods
-Results for the other methods were obtained using their official implementations, avaialable at: <br>
+Results for the other methods were obtained using their official implementations, available at: <br>
 MKD: https://github.com/rohban-lab/Knowledge_Distillation_AD  <br>
 MSCL: https://github.com/talreiss/Mean-Shifted-Anomaly-Detection <br>
 MHRot: https://github.com/hendrycks/ss-ood <br>
