@@ -1,3 +1,4 @@
+from numpy.core.fromnumeric import shape
 from sklearn.covariance import LedoitWolf
 import torch
 from efficientnet_pytorch import EfficientNet
@@ -9,7 +10,7 @@ import argparse
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-# Adapted from https://github.com/byungjae89/MahalanobisAD-pytorch
+# Adapted from https://github.com/ORippler/gaussian-ad-mvtec
 class EfficientNet_features(EfficientNet):
     def get_features(self, inputs):
         features = []
@@ -23,8 +24,11 @@ class EfficientNet_features(EfficientNet):
             if drop_connect_rate:
                 drop_connect_rate *= float(idx) / len(self._blocks)
             x = block(x, drop_connect_rate=drop_connect_rate)
-            if (x_prev.shape[1] != x.shape[1] and idx != 0) or idx == (len(self._blocks) - 1):
+
+            if (x_prev.shape[1] != x.shape[1] and idx != 0):
                 features.append(x_prev.mean(dim=(2,3)))
+            if idx == (len(self._blocks) - 1):
+                features.append(x.mean(dim=(2,3)))
             x_prev = x
 
         x = self._swish(self._bn1(self._conv_head(x)))
@@ -56,7 +60,7 @@ def get_latent_vectors(data, model, bs):
 
 def get_maha_dists(train, points):
     scores = np.zeros(points[str(0)].shape[0])
-
+    
     for layer in range(len(train)):       
         train[str(layer)] = np.array(train[str(layer)])
         mean = np.mean(train[str(layer)], axis=0)

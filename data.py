@@ -49,7 +49,7 @@ def get_cifar10(efnet, in_class = 0):
     test = torch.tensor([1 if testSetOut.targets[i] not in indList else 0 for i in range(len(testSetOut))])
 
     testSetOut = torch.utils.data.Subset(testSetOut, test.nonzero())
-    testSetOut, _ = torch.utils.data.random_split(testSetOut, [1000, len(testSetOut)-1000], generator=torch.Generator().manual_seed(1))
+    testSetOut, _ = torch.utils.data.random_split(testSetOut, [1000, len(testSetOut)-1000], generator=torch.Generator().manual_seed(42))
 
     return trainSet, testSetIn, testSetOut
 
@@ -81,7 +81,7 @@ def get_cifar100(efnet, in_class = 0):
     test = torch.tensor([1 if testSetOut.targets[i] not in indList else 0 for i in range(len(testSetOut))])
 
     testSetOut = torch.utils.data.Subset(testSetOut, test.nonzero())
-    testSetOut, _ = torch.utils.data.random_split(testSetOut, [500, len(testSetOut)-500], generator=torch.Generator().manual_seed(1))
+    testSetOut, _ = torch.utils.data.random_split(testSetOut, [500, len(testSetOut)-500], generator=torch.Generator().manual_seed(42))
 
     return trainSet, testSetIn, testSetOut    
 
@@ -101,6 +101,6 @@ def get_lowres_shift_data(efnet, in_class = 0):
         testSetOut = torchvision.datasets.CIFAR100(root='../data', train=False, download=True, transform=transform)
     else:
         testSetOut = torchvision.datasets.SVHN(root='./data', split='test', download=True, transform=transform)
-        testSetOut, _ = torch.utils.data.random_split(testSetOut, [10000, len(testSetOut)-10000], generator=torch.Generator().manual_seed(1))
+        testSetOut, _ = torch.utils.data.random_split(testSetOut, [10000, len(testSetOut)-10000], generator=torch.Generator().manual_seed(42))
 
     return trainSet, testSetIn, testSetOut
