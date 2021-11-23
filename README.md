@@ -1,8 +1,16 @@
 # Data-invariants
 
-Run uniclass (10 exps), unisuper (20 exps) or shift-lowres (2 exps) with e.g.
+Run uniclass (10 exps) using an EfficientNet-b4 with
 ```
-python3 mahaad.py --numExps 10 --task uniclass --efnet 4 --bs 64
+python3 mahaad.py --numExps 10 --task uniclass --efnet 4 --architecture en
+```
+Or unisuper (20 exps) using a ResNet-152 with
+```
+python3 mahaad.py --numExps 20 --task unisuper --architecture rn152 --bs 64
+```
+Or shift-lowres (2 exps) using a ResNet-101 with
+```
+python3 mahaad.py --numExps 2 --task shift-lowres --architecture rn101
 ```
 
 ### Code for other methods
