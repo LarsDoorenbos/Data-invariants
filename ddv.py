@@ -88,6 +88,8 @@ def eval_DDV(testIn, testOut, model, frozenVectors):
     auc = eval.compute_auc(np.array(testInScores), np.array(testOutScores))
     print("AUC: {:.2f}".format(auc*100))
 
+    return auc
+
 
 def main(in_class, task):
     if task == 'uniclass':
@@ -97,12 +99,13 @@ def main(in_class, task):
     elif task == 'shift-lowres':
         train, testIn, testOut = data.get_lowres_shift_data(0, in_class)
 
-    model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet152', pretrained=True)
+    model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet101', pretrained=True)
     model.to(device)
     model.fc = nn.Linear(2048, dims)
 
     model, frozenVectors = train_DDV(train, model)
-    eval_DDV(testIn, testOut, model, frozenVectors)
+    auc = eval_DDV(testIn, testOut, model, frozenVectors)
+    return auc
 
 
 if __name__ == "__main__":        
