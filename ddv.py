@@ -114,8 +114,10 @@ if __name__ == "__main__":
     parser.add_argument("--task", type=str, default="uniclass")
     args = parser.parse_args()
 
-    auc = 0
+    aucs = []
     for i in range(args.numExps):
-        auc += main(i, args.task)        
+        aucs.append(main(i, args.task))
 
-    print('Average AUC:', auc / args.numExps)    
+    aucs = np.array(aucs)
+    print('Average AUC:', np.mean(aucs))    
+    print(aucs)
