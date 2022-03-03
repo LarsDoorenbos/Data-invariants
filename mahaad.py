@@ -1,4 +1,3 @@
-from numpy.core.fromnumeric import shape
 from sklearn.covariance import LedoitWolf
 import torch
 from efficientnet_pytorch import EfficientNet
