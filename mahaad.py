@@ -1,14 +1,19 @@
-from sklearn.covariance import LedoitWolf
-import torch
-from efficientnet_pytorch import EfficientNet
-import torch.nn.functional as F
-import data
-import numpy as np
-import eval 
+
 import argparse
+
+import numpy as np
+from sklearn.covariance import LedoitWolf
+
+from efficientnet_pytorch import EfficientNet
+import torch
+
+import data
+import eval 
+
 import torch.nn as nn
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 
 # Adapted from https://github.com/ORippler/gaussian-ad-mvtec
 class EfficientNet_features(EfficientNet):
@@ -35,6 +40,7 @@ class EfficientNet_features(EfficientNet):
         features.append(x.mean(dim=(2,3)))
 
         return features
+
 
 # Adapted from https://github.com/ORippler/gaussian-ad-mvtec
 class ResNet_features(nn.Module):
@@ -68,6 +74,7 @@ class ResNet_features(nn.Module):
 
         return result
 
+
 @torch.no_grad()
 def get_latent_vectors(data, model, bs):
     loader = torch.utils.data.DataLoader(data, batch_size=bs, shuffle=False, num_workers=8)
@@ -90,7 +97,8 @@ def get_latent_vectors(data, model, bs):
 
     return latent_vectors
 
-def get_maha_dists(train, points, architecture):
+
+def get_maha_dists(train, points):
     scores = np.zeros(points[str(0)].shape[0])
     
     for layer in range(len(train)):       
@@ -98,12 +106,7 @@ def get_maha_dists(train, points, architecture):
         mean = np.mean(train[str(layer)], axis=0)
 
         LW = LedoitWolf().fit(train[str(layer)])
-
-        # Typically np linalg inv gives slightly better results than LW.precision_, so EfNet results could probably be improved slightly further. ResNet results already w/ np.linalg.inv
-        if architecture == 'en':
-            covI = LW.precision_
-        else:
-            covI = np.linalg.inv(LW.covariance_)
+        covI = np.linalg.inv(LW.covariance_)
 
         points[str(layer)] = (points[str(layer)] - mean)[:, None]
         dists = covI @ points[str(layer)].transpose(0, 2, 1)
@@ -113,6 +116,7 @@ def get_maha_dists(train, points, architecture):
         scores += dists
 
     return scores   
+
 
 def main(in_class, task, efnet, bs, architecture):
     if task == 'uniclass':
@@ -139,14 +143,15 @@ def main(in_class, task, efnet, bs, architecture):
     inFeatures = get_latent_vectors(testIn, model, bs)
     outFeatures = get_latent_vectors(testOut, model, bs)
     
-    inScores = get_maha_dists(trainFeatures, inFeatures, architecture)
-    outScores = get_maha_dists(trainFeatures, outFeatures, architecture)
+    inScores = get_maha_dists(trainFeatures, inFeatures)
+    outScores = get_maha_dists(trainFeatures, outFeatures)
 
     auc = eval.compute_auc(inScores, outScores)
 
     print("AUC: {:.2f}".format(auc*100))
 
     return auc
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

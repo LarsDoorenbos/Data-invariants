@@ -1,9 +1,13 @@
-import data
+
+import argparse
+
 import numpy as np
-import eval 
+
 import torch
 import torch.nn as nn
-import argparse
+
+import data
+import eval 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 bs = 32

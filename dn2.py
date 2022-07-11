@@ -1,13 +1,18 @@
-import data
-import numpy as np
-import eval 
+
 import argparse
+
+import numpy as np
+from sklearn.neighbors import NearestNeighbors
+
 import torch
 import torch.nn as nn
-from sklearn.neighbors import NearestNeighbors
+
+import eval 
+import data
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 bs = 64
+
 
 @torch.no_grad()
 def get_latent_vectors(data, model):
@@ -21,13 +26,15 @@ def get_latent_vectors(data, model):
 
     return torch.cat(latent_vectors).cpu().numpy()
 
+
 def get_knn_dists(trainFeatures, features):
     model = NearestNeighbors(n_neighbors=2)
 
     model.fit(trainFeatures)
     dists = np.mean(model.kneighbors(features)[0], axis=1)
-        
+
     return dists
+
 
 def main(in_class, task):
     if task == 'uniclass':
@@ -53,6 +60,7 @@ def main(in_class, task):
     print("AUC: {:.2f}".format(auc*100))
 
     return auc
+
 
 if __name__ == "__main__":        
     parser = argparse.ArgumentParser()

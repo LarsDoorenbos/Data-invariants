@@ -1,10 +1,13 @@
+
+import numpy as np
+
 import torchvision
 import torch
 import torchvision.transforms as transforms
-import numpy as np
 
 EfNetCrops = [224, 240, 260, 300, 380, 456, 528, 600]
 EfNetShapes = [int(EfNetCrops[i] / EfNetCrops[0] * 256) for i in range(len(EfNetCrops))]
+
 
 # From https://github.com/ryanchankh/cifar100coarse
 def sparse2coarse(targets):
@@ -24,6 +27,7 @@ def sparse2coarse(targets):
                               16, 19,  2,  4,  6, 19,  5,  5,  8, 19, 
                               18,  1,  2, 15,  6,  0, 17,  8, 14, 13])
     return coarse_labels[targets]
+
 
 def get_cifar10(efnet, in_class = 0):
     transform = transforms.Compose([
@@ -52,6 +56,7 @@ def get_cifar10(efnet, in_class = 0):
     testSetOut, _ = torch.utils.data.random_split(testSetOut, [1000, len(testSetOut)-1000], generator=torch.Generator().manual_seed(42))
 
     return trainSet, testSetIn, testSetOut
+
 
 def get_cifar100(efnet, in_class = 0):
     transform = transforms.Compose([
@@ -85,6 +90,7 @@ def get_cifar100(efnet, in_class = 0):
 
     return trainSet, testSetIn, testSetOut    
 
+
 def get_lowres_shift_data(efnet, in_class = 0):
     transform = transforms.Compose([
         transforms.Resize(EfNetCrops[efnet]),
@@ -97,10 +103,7 @@ def get_lowres_shift_data(efnet, in_class = 0):
 
     testSetIn = torchvision.datasets.CIFAR10(root='../data', train=False, download=True, transform=transform)
 
-    if in_class == 0:
-        testSetOut = torchvision.datasets.CIFAR100(root='../data', train=False, download=True, transform=transform)
-    else:
-        testSetOut = torchvision.datasets.SVHN(root='./data', split='test', download=True, transform=transform)
-        testSetOut, _ = torch.utils.data.random_split(testSetOut, [10000, len(testSetOut)-10000], generator=torch.Generator().manual_seed(42))
+    testSetOut = torchvision.datasets.SVHN(root='./data', split='test', download=True, transform=transform)
+    testSetOut, _ = torch.utils.data.random_split(testSetOut, [10000, len(testSetOut)-10000], generator=torch.Generator().manual_seed(42))
 
     return trainSet, testSetIn, testSetOut
