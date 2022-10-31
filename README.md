@@ -1,6 +1,6 @@
 # Data Invariants
 
-Code used for our paper ["Data Invariants to Understand Unsupervised Out-of-Distribution Detection"](https://arxiv.org/abs/2111.13362), accepted at the European Conference on Computer Vision 2022.
+Code used for our paper ["Data Invariants to Understand Unsupervised Out-of-Distribution Detection"](https://link.springer.com/chapter/10.1007/978-3-031-19821-2_8), accepted at the European Conference on Computer Vision 2022.
 
 ![The difference between supervised and unsupervised OOD](figures/ood.png "OOD")
 
@@ -56,10 +56,12 @@ Code to recreate figures 6 & 7, as far as possible for standalone code, is provi
 If you find this work helpful, consider citing it using
 
 ```
-@article{doorenbos2021data,
-  title={Data Invariants to Understand Unsupervised Out-of-Distribution Detection},
+@inproceedings{doorenbos2022data,
+  title={Data invariants to understand unsupervised out-of-distribution detection},
   author={Doorenbos, Lars and Sznitman, Raphael and M{\'a}rquez-Neila, Pablo},
-  journal={arXiv preprint arXiv:2111.13362},
-  year={2021}
+  booktitle={European Conference on Computer Vision},
+  pages={133--150},
+  year={2022},
+  organization={Springer}
 }
 ```
