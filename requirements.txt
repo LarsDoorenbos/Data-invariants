@@ -1,5 +1,5 @@
 efficientnet-pytorch==0.7.1
-joblib==1.1.0
+joblib==1.1.1
 numpy==1.21.4
 Pillow==8.4.0
 scikit-learn==1.0.1
